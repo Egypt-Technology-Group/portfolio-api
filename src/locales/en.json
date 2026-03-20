@@ -1,0 +1,136 @@
+{
+  "navbar": {
+    "home": "Home",
+    "services": "Services",
+    "projects": "Projects",
+    "skills": "Skills",
+    "contact": "Contact",
+    "about": "About",
+    "articles": "Articles",
+    "testimonials": "Testimonials"
+  },
+  "hero": {
+    "greeting": "Welcome to my creative space",
+    "namePrefix": "Hello, I'm",
+    "name": "Karim Gamal",
+    "description": "I'm a Full-stack Web Developer combining the power of coding with SEO expertise. I focus on writing clean code that ensures your project leads the way.",
+    "ctaWork": "Let's work together",
+    "ctaResume": "Resume",
+    "roles": [
+      "Frontend Developer",
+      "Web Applications Developer",
+      "React & Vue Developer",
+      "UI Developer"
+    ]
+  },
+  "skills": {
+    "title": "My Stack",
+    "subtitle": "Tools",
+    "description": "Modern technologies ensuring the highest quality standards.",
+    "webDev": "Web Development",
+    "design": "Design"
+  },
+  "services": {
+    "title": "My Software Services",
+    "subtitle": "Integrated technical solutions for your digital business growth",
+    "items": [
+      {
+        "title": "Website Maintenance",
+        "description": "I provide maintenance and repair services to fix bugs quickly and ensure continuous operation.",
+        "icon": "fas fa-tools"
+      },
+      {
+        "title": "Store Management",
+        "description": "I manage your online store regularly, monitoring performance to achieve the best long-term results.",
+        "icon": "fas fa-tasks"
+      },
+      {
+        "title": "Web Development",
+        "description": "I design and develop professional websites and e-commerce stores that help you stand out.",
+        "icon": "fas fa-code"
+      },
+      {
+        "title": "Content Writing",
+        "description": "Content writing services provide the expertise you need to create engaging and informative content tailored to your audience.",
+        "icon": "fas fa-pen-nib"
+      },
+      {
+        "title": "SEO Optimization",
+        "description": "I apply advanced SEO strategies to improve your search engine rankings and increase targeted visitors.",
+        "icon": "fas fa-search-dollar"
+      },
+      {
+        "title": "Logo Design",
+        "description": "I design unique creative logos with modern fonts and multiple options to fit your brand identity.",
+        "icon": "fas fa-palette"
+      }
+    ]
+  },
+  "about": {
+    "title": "About",
+    "subtitle": "Me",
+    "tabs": {
+      "info": "Info",
+      "skills": "Skills",
+      "experience": "Experience",
+      "education": "Education"
+    }
+  },
+  "projects": {
+    "description": "Check out my latest projects built with modern technologies.",
+    "filters": {
+      "all": "All"
+    }
+  },
+  "articles": {
+    "academy": "Karim Gamal Tech Academy",
+    "title": "Deep",
+    "subtitle": "Articles",
+    "description": "Technical lessons that replace paid courses.",
+    "readMore": "Read More"
+  },
+  "testimonials": {
+    "title": "Client",
+    "subtitle": "Testimonials",
+    "quote": "Customer trust is my greatest asset"
+  },
+  "footer": {
+    "description": "Designing the future with a programming spirit and creative thinking. Karim Gamal - Professional UI Developer providing integrated technical solutions.",
+    "quickLinks": "Quick Links",
+    "directContact": "Direct Contact",
+    "copyright": "Designed and Developed by {name} © {year}",
+    "goTop": "Go to Top"
+  },
+  "contact": {
+    "title": "Contact Me",
+    "subtitle": "Have a project? Let's talk about it",
+    "stayInTouch": "Stay in Touch",
+    "stayInTouchDesc": "I'm always available to discuss software projects.",
+    "name": "Full Name",
+    "email": "Email Address",
+    "subject": "Subject",
+    "message": "Your Message",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "success": "Your message was sent successfully!",
+    "error": "An error occurred while sending. Please try again."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "Sorry, the page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to Home"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry"
+  },
+  "accessibility": {
+    "toggleTheme": "Toggle dark mode",
+    "toggleLanguage": "Toggle language",
+    "visitFacebook": "Visit Facebook",
+    "visitLinkedin": "Visit LinkedIn",
+    "visitWhatsapp": "Chat on WhatsApp",
+    "visitGithub": "Visit GitHub"
+  }
+}
