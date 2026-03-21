@@ -54,13 +54,13 @@ onMounted(fetchData)
         :style="{ color: skill.color }">
         <div
           class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
-          <!-- Use SVG path if available -->
-          <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'" 
+          <!-- Use SVG path if available (for SVG files) -->
+          <svg v-if="skill.svg_path && skill.icon?.endsWith('.svg')" :viewBox="skill.svg_viewbox || '0 0 24 24'"
                class="w-10 h-10"
                :style="skill.preserve_color ? {} : { fill: skill.color }">
             <path :d="skill.svg_path" :fill="skill.preserve_color ? undefined : skill.color"></path>
           </svg>
-          <!-- Fallback to icon URL if path not available -->
+          <!-- Use img tag for raster images (PNG, JPG, GIF) or when no SVG path -->
           <img v-else-if="skill.icon" :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
           <!-- Empty state -->
           <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
