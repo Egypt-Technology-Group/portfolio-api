@@ -135,12 +135,23 @@ onMounted(fetchAboutData)
                     {{ locale === 'ar' ? section.title : section.title_en }}
                   </h4>
                   <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                    <div 
-                      v-for="skill in section.items" 
-                      :key="skill.name" 
+                    <div
+                      v-for="skill in section.items"
+                      :key="skill.name"
                       class="flex flex-col items-center justify-center p-6 bg-white dark:bg-[#24262b] rounded-[2.5rem] shadow-sm border border-gray-50 dark:border-white/5 group transition-all hover:shadow-xl hover:-translate-y-2"
                     >
-                      <i :class="[skill.icon, 'text-4xl md:text-5xl mb-4 transition-all duration-300']" :style="{ color: skill.color }"></i>
+                      <!-- SVG Icon -->
+                      <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
+                           class="w-10 h-10 md:w-12 md:h-12 mb-4 transition-all duration-300"
+                           :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
+                        <path :d="skill.svg_path" :fill="skill.preserve_color ? (skill.svg_fill || 'currentColor') : (skill.color || '#ff8c00')"></path>
+                      </svg>
+                      <!-- Image Icon (PNG, JPG, GIF) -->
+                      <img v-else-if="skill.icon && (skill.icon.includes('.png') || skill.icon.includes('.jpg') || skill.icon.includes('.gif') || skill.icon.includes('.svg'))"
+                           :src="skill.icon" :alt="skill.name"
+                           class="w-10 h-10 md:w-12 md:h-12 mb-4 object-contain transition-all duration-300" />
+                      <!-- FontAwesome Icon (fallback) -->
+                      <i v-else :class="[skill.icon || 'fas fa-code', 'text-4xl md:text-5xl mb-4 transition-all duration-300']" :style="{ color: skill.color || '#ff8c00' }"></i>
                       <span class="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">{{ skill.name }}</span>
                     </div>
                   </div>
