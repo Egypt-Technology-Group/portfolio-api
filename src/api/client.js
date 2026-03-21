@@ -1,72 +1,76 @@
-/**
- * Hardened generic fetch wrapper for backend integration
- */
-export async function apiClient(endpoint, { body, ...customConfig } = {}) {
-  const baseURL = import.meta.env.VITE_API_ENDPOINT || '';
-  const timeout = 10000; // 10s timeout
+import axios from 'axios';
 
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+// Get base URL from environment
+let baseURL = import.meta.env.VITE_API_ENDPOINT || '';
 
-  const headers = { 'Content-Type': 'application/json' };
-  
-  const config = {
-    method: body ? 'POST' : 'GET',
-    ...customConfig,
-    headers: {
-      ...headers,
-      ...customConfig.headers,
-    },
-    signal: controller.signal
-  };
+// Fix: Ensure baseURL is a full URL if it looks like a domain
+if (baseURL && !baseURL.startsWith('http') && baseURL.includes('.')) {
+  baseURL = 'https://' + baseURL;
+}
 
-  if (body) {
-    config.body = JSON.stringify(body);
+// Remove trailing slash
+baseURL = baseURL.replace(/\/$/, '');
+
+// Create axios instance with base configuration
+const apiClient = axios.create({
+  baseURL: baseURL,
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  // Allow credentials if needed for CORS
+  withCredentials: false
+});
+
+// Request interceptor - log requests in development
+apiClient.interceptors.request.use(
+  (config) => {
+    console.log('[API Request]', config.method.toUpperCase(), config.url);
+    return config;
+  },
+  (error) => {
+    console.error('[API Request Error]', error);
+    return Promise.reject(error);
   }
+);
 
-  try {
-    const response = await window.fetch(`${baseURL}${endpoint}`, config);
-    clearTimeout(id);
-
-    const contentType = response.headers.get('content-type');
-    let data = null;
-
-    if (contentType && contentType.includes('application/json')) {
-      data = await response.json();
-    } else {
-      data = await response.text();
-    }
-
-    if (response.ok) {
-      return {
-        success: true,
-        data,
-        error: null
-      };
-    }
-
+// Response interceptor - normalize response format
+apiClient.interceptors.response.use(
+  (response) => {
+    // For successful responses, return in expected format
     return {
-      success: false,
-      data: null,
-      error: data?.message || data || `Error: ${response.status} ${response.statusText}`
+      success: true,
+      data: response.data,
+      error: null
     };
-
-  } catch (err) {
-    clearTimeout(id);
-    let errorMessage = 'Network error or request timeout';
+  },
+  (error) => {
+    // For errors, return in expected format
+    let errorMessage = 'Network error';
     
-    if (err.name === 'AbortError') {
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
       errorMessage = 'Request timed out';
-    } else if (err.message) {
-      errorMessage = err.message;
+    } else if (error.response) {
+      // Server responded with error status
+      errorMessage = error.response.data?.message || error.response.data?.error || `${error.response.status} ${error.response.statusText}`;
+    } else if (error.request) {
+      // Request made but no response - likely CORS or network issue
+      console.error('[API Network Error]', {
+        url: error.config?.url,
+        baseURL: error.config?.baseURL,
+        message: 'No response received - check CORS, network, or if backend is running'
+      });
+      errorMessage = `No response from server - Backend may be offline or blocking CORS. Checked: ${error.config?.baseURL}${error.config?.url}`;
+    } else {
+      errorMessage = error.message;
     }
-
+    
     return {
       success: false,
       data: null,
       error: errorMessage
     };
   }
-}
+);
 
 export default apiClient;

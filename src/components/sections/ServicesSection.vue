@@ -50,13 +50,22 @@ onMounted(fetchServices)
     </div>
 
     <div v-else class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-      <article 
-        v-for="service in services" 
+      <article
+        v-for="service in services"
         :key="service.id"
         class="bg-white dark:bg-[#24262b] p-8 rounded-[40px] shadow-xl shadow-black/5 border border-gray-50 dark:border-white/5 flex flex-col items-center text-center group transition-all duration-500 hover:-translate-y-2 hover:border-primary/30"
       >
         <div class="text-6xl mb-6 h-20 flex items-center justify-center text-primary drop-shadow-lg transition-transform group-hover:scale-110">
-          <i :class="service.icon"></i>
+          <!-- Use SVG path if available -->
+          <svg v-if="service.svg_path" :viewBox="service.svg_viewbox || '0 0 24 24'" 
+               class="w-16 h-16" 
+               style="fill: #FF8C00;">
+            <path :d="service.svg_path"></path>
+          </svg>
+          <!-- Fallback to icon URL if path not available -->
+          <img v-else-if="service.icon" :src="service.icon" :alt="service.title_en" class="w-16 h-16 object-contain" />
+          <!-- Fallback to Font Awesome for backward compatibility -->
+          <i v-else :class="service.icon || 'fa-code'" class="fas"></i>
         </div>
         <div class="mb-4 w-full">
           <h3 class="text-xl font-black text-gray-900 dark:text-white mb-3 group-hover:text-primary transition-colors">

@@ -5,6 +5,7 @@ import { RouterView } from 'vue-router'
 import AppNavbar from './components/layout/AppNavbar.vue'
 import AppFooter from './components/layout/AppFooter.vue'
 import { themeStore } from './stores/theme'
+import { getSettings } from './api/portfolio'
 
 const { locale } = useI18n({ useScope: 'global' })
 
@@ -15,20 +16,35 @@ watch(locale, (newLocale) => {
 
 function updateHtmlAttributes(lang) {
   if (typeof document === 'undefined') return
-  
+
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
   document.documentElement.dir = dir
   document.documentElement.lang = lang
-  
+
   if (typeof window !== 'undefined') {
     localStorage.setItem('locale', lang)
+  }
+}
+
+// Update document title from settings
+const updateDocumentTitle = async () => {
+  try {
+    const settings = await getSettings()
+    if (settings && typeof document !== 'undefined') {
+      const title = locale.value === 'ar' ? settings.site_title_ar : settings.site_title_en
+      if (title) {
+        document.title = title
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fetch settings for title:', err)
   }
 }
 
 onMounted(() => {
   // Initialize theme
   themeStore.initTheme()
-  
+
   // Ensure the correct initial locale from localStorage
   if (typeof window !== 'undefined') {
     const savedLocale = localStorage.getItem('locale')
@@ -36,6 +52,14 @@ onMounted(() => {
       locale.value = savedLocale
     }
   }
+
+  // Update document title from settings
+  updateDocumentTitle()
+})
+
+// Watch for locale changes to update title
+watch(locale, () => {
+  updateDocumentTitle()
 })
 </script>
 

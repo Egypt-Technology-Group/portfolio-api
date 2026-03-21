@@ -1,10 +1,24 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import siteConfig from '@/config/site'
+import { getSettings } from '@/api/portfolio'
 import { submitContactForm } from '@/api/contact'
 
 const { t, locale } = useI18n({ useScope: 'global' })
+
+const settings = ref(null)
+
+const fetchSettings = async () => {
+  try {
+    settings.value = await getSettings()
+  } catch (err) {
+    console.error('Failed to fetch settings:', err)
+  }
+}
+
+onMounted(() => {
+  fetchSettings()
+})
 
 const form = ref({
   name: '',
@@ -50,7 +64,7 @@ const handleSubmit = async () => {
 
   try {
     const response = await submitContactForm(form.value)
-    
+
     if (response.success) {
       submitSuccess.value = true
       form.value = { name: '', email: '', subject: '', message: '' }
@@ -65,6 +79,7 @@ const handleSubmit = async () => {
 }
 
 const openWhatsApp = () => {
+  if (!settings.value?.contact_whatsapp) return
   const whatsappMessage = encodeURIComponent(
     `*New message from portfolio*\n\n` +
     `*Name:* ${form.value.name}\n` +
@@ -72,7 +87,7 @@ const openWhatsApp = () => {
     `*Subject:* ${form.value.subject}\n\n` +
     `*Message:*\n${form.value.message}`
   )
-  const whatsappUrl = `https://wa.me/${siteConfig.whatsapp}?text=${whatsappMessage}`
+  const whatsappUrl = `https://wa.me/${settings.value.contact_whatsapp}?text=${whatsappMessage}`
   if (typeof window !== 'undefined') {
     window.open(whatsappUrl, '_blank')
   }
@@ -90,7 +105,7 @@ const addStructuredData = () => {
     "description": t('contact.subtitle'),
     "url": typeof window !== 'undefined' ? window.location.href : ''
   }
-  
+
   seoScript = document.createElement('script')
   seoScript.type = 'application/ld+json'
   seoScript.id = 'seo-contact-data'
@@ -112,12 +127,12 @@ onUnmounted(() => {
   removeStructuredData()
 })
 
-const socialLinks = [
-  { name: 'Facebook', url: siteConfig.social.facebook, icon: 'fab fa-facebook-f', color: '#1877F2' },
-  { name: 'LinkedIn', url: siteConfig.social.linkedin, icon: 'fab fa-linkedin-in', color: '#0A66C2' },
+const socialLinks = computed(() => [
+  { name: 'Facebook', url: settings.value?.facebook_url || '', icon: 'fab fa-facebook-f', color: '#1877F2' },
+  { name: 'LinkedIn', url: settings.value?.linkedin_url || '', icon: 'fab fa-linkedin-in', color: '#0A66C2' },
   { name: 'WhatsApp', action: openWhatsApp, icon: 'fab fa-whatsapp', color: '#25D366' },
-  { name: 'Telegram', url: siteConfig.social.telegram, icon: 'fab fa-telegram-plane', color: '#24A1DE' }
-]
+  { name: 'Telegram', url: settings.value?.telegram_url || '', icon: 'fab fa-telegram-plane', color: '#24A1DE' }
+])
 </script>
 
 <template>

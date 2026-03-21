@@ -4,11 +4,14 @@ import apiClient from './client';
  * Generic fetcher for portfolio collections
  */
 const fetchCollection = async (collection) => {
-  const response = await apiClient(`/${collection}`);
-  if (response.success && response.data.success) {
+  const response = await apiClient.get(`/${collection}`);
+  if (response.success && response.data?.success) {
     return response.data.data;
   }
-  throw new Error(response.error || response.data?.error || 'Failed to fetch data');
+  if (response.success) {
+    return response.data;
+  }
+  throw new Error(response.error || 'Failed to fetch data');
 };
 
 export const getProjects = () => fetchCollection('projects');
