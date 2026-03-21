@@ -51,6 +51,7 @@ onMounted(fetchData)
 
     <div v-else class="skills-container" :style="{ '--d': (settings?.skills_marquee_speed || 70) + 's' }">
       <div class="skills-track">
+        <!-- Original skills -->
         <div v-for="(skill, index) in skills" :key="`${skill.name}-${index}`" class="skill-item group" :title="skill.name">
           <div
             class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
@@ -74,28 +75,29 @@ onMounted(fetchData)
             {{ skill.name }}
           </span>
         </div>
-      </div>
-      <!-- Duplicate track for seamless loop -->
-      <div class="skills-track" aria-hidden="true">
-        <div v-for="(skill, index) in skills" :key="`dup-${skill.name}-${index}`" class="skill-item group">
-          <div
-            class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
-            <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
-                 class="w-10 h-10"
-                 :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
-              <path :d="skill.svg_path" :fill="skill.preserve_color ? (skill.svg_fill || 'currentColor') : (skill.color || '#ff8c00')"></path>
-            </svg>
-            <img v-else-if="skill.icon && (skill.icon.includes('.png') || skill.icon.includes('.jpg') || skill.icon.includes('.gif') || skill.icon.includes('.svg'))" 
-                 :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
-            <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs" :style="{ color: skill.color || '#ff8c00' }">
-              {{ skill.name.charAt(0) }}
+        <!-- Duplicated skills for seamless loop (only if skills exist) -->
+        <template v-if="skills.length > 0">
+          <div v-for="(skill, index) in skills" :key="`dup-${skill.name}-${index}`" class="skill-item group" aria-hidden="true">
+            <div
+              class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
+              <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
+                   class="w-10 h-10"
+                   :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
+                <path :d="skill.svg_path" :fill="skill.preserve_color ? (skill.svg_fill || 'currentColor') : (skill.color || '#ff8c00')"></path>
+              </svg>
+              <img v-else-if="skill.icon && (skill.icon.includes('.png') || skill.icon.includes('.jpg') || skill.icon.includes('.gif') || skill.icon.includes('.svg'))" 
+                   :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
+              <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs" :style="{ color: skill.color || '#ff8c00' }">
+                {{ skill.name.charAt(0) }}
+              </div>
             </div>
+
+            <span
+              class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              {{ skill.name }}
+            </span>
           </div>
-          <span
-            class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            {{ skill.name }}
-          </span>
-        </div>
+        </template>
       </div>
     </div>
   </section>
@@ -130,6 +132,8 @@ onMounted(fetchData)
   gap: var(--gap);
   animation: marquee var(--d) linear infinite !important;
   flex-shrink: 0;
+  /* Calculate full track width: (item width + gap) * number of items */
+  width: max-content;
 }
 
 .skills-container:hover .skills-track {
@@ -149,7 +153,7 @@ onMounted(fetchData)
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-1 * var(--s) - var(--gap)));
+    transform: translateX(-50%);
   }
 }
 </style>
