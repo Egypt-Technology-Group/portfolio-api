@@ -52,9 +52,9 @@ onMounted(fetchData)
     <div v-else class="skills-container" :style="{ '--d': (settings?.skills_marquee_speed || 70) + 's' }">
       <div class="skills-track">
         <!-- Original skills -->
-        <div v-for="(skill, index) in skills" :key="`${skill.name}-${index}`" class="skill-item" :title="skill.name">
+        <div v-for="(skill, index) in skills" :key="`${skill.name}-${index}`" class="skill-item group" :title="skill.name">
           <div
-            class="skill-icon-wrapper">
+            class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
             <!-- Use SVG path if available -->
             <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
                  class="w-10 h-10"
@@ -71,15 +71,15 @@ onMounted(fetchData)
           </div>
 
           <span
-            class="skill-name">
+            class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             {{ skill.name }}
           </span>
         </div>
         <!-- Duplicated skills for seamless loop -->
         <template v-if="skills.length > 0">
-          <div v-for="(skill, index) in skills" :key="`dup-${skill.name}-${index}`" class="skill-item" aria-hidden="true">
+          <div v-for="(skill, index) in skills" :key="`dup-${skill.name}-${index}`" class="skill-item group" aria-hidden="true">
             <div
-              class="skill-icon-wrapper">
+              class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
               <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
                    class="w-10 h-10"
                    :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
@@ -93,7 +93,7 @@ onMounted(fetchData)
             </div>
 
             <span
-              class="skill-name">
+              class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
               {{ skill.name }}
             </span>
           </div>
@@ -124,6 +124,12 @@ onMounted(fetchData)
   position: relative;
   padding-block: 1.5rem;
   background: transparent;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+:global(.dark) .skills-container {
+  border-color: transparent;
 }
 
 .skills-track {
@@ -147,43 +153,22 @@ onMounted(fetchData)
   flex-shrink: 0;
 }
 
-.skill-icon-wrapper {
-  width: 5rem;
-  height: 5rem;
-  background-color: rgb(249, 250, 251);
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 6px -1px rgb(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+/* Icon wrapper - force dark mode colors */
+.skill-item > div > div.w-20.h-20 {
+  background-color: rgb(249, 250, 251) !important;
 }
 
-:global(.dark) .skill-icon-wrapper {
-  background-color: rgb(36, 38, 43);
+:global(.dark) .skill-item > div > div.w-20.h-20 {
+  background-color: rgb(36, 38, 43) !important;
 }
 
-.skill-item:hover .skill-icon-wrapper {
-  transform: scale(1.1);
+/* Skill name text - force dark mode colors */
+.skill-item > div > span.mt-3 {
+  color: rgba(0, 0, 0, 0.6) !important;
 }
 
-.skill-name {
-  margin-top: 0.75rem;
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(0, 0, 0, 0.6);
-  text-transform: uppercase;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  white-space: nowrap;
-}
-
-:global(.dark) .skill-name {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.skill-item:hover .skill-name {
-  opacity: 1;
+:global(.dark) .skill-item > div > span.mt-3 {
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
 @keyframes marquee {
