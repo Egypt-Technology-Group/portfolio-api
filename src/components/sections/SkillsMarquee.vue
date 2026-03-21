@@ -49,27 +49,53 @@ onMounted(fetchData)
       </div>
     </div>
 
-    <div v-else class="skills-container" :style="{ '--d': settings?.skills_marquee_speed || 70 }">
-      <div v-for="(skill, index) in skills" :key="`${skill.name}-${index}`" class="skill-item group" :title="skill.name"
-        :style="{ color: skill.color }">
-        <div
-          class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
-          <!-- Use SVG path if available (for SVG files) -->
-          <svg v-if="skill.svg_path && skill.icon?.endsWith('.svg')" :viewBox="skill.svg_viewbox || '0 0 24 24'"
-               class="w-10 h-10"
-               :style="skill.preserve_color ? {} : { fill: skill.color }">
-            <path :d="skill.svg_path" :fill="skill.preserve_color ? undefined : skill.color"></path>
-          </svg>
-          <!-- Use img tag for raster images (PNG, JPG, GIF) or when no SVG path -->
-          <img v-else-if="skill.icon" :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
-          <!-- Empty state -->
-          <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-        </div>
+    <div v-else class="skills-container" :style="{ '--d': (settings?.skills_marquee_speed || 70) + 's' }">
+      <div class="skills-track">
+        <div v-for="(skill, index) in skills" :key="`${skill.name}-${index}`" class="skill-item group" :title="skill.name">
+          <div
+            class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
+            <!-- Use SVG path if available -->
+            <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
+                 class="w-10 h-10"
+                 :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
+              <path :d="skill.svg_path" :fill="skill.preserve_color ? (skill.svg_fill || 'currentColor') : (skill.color || '#ff8c00')"></path>
+            </svg>
+            <!-- Fallback to icon image if available (PNG, JPG, GIF, or SVG file) -->
+            <img v-else-if="skill.icon && (skill.icon.includes('.png') || skill.icon.includes('.jpg') || skill.icon.includes('.gif') || skill.icon.includes('.svg'))" 
+                 :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
+            <!-- Empty state for FontAwesome-only skills -->
+            <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs" :style="{ color: skill.color || '#ff8c00' }">
+              {{ skill.name.charAt(0) }}
+            </div>
+          </div>
 
-        <span
-          class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-          {{ skill.name }}
-        </span>
+          <span
+            class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            {{ skill.name }}
+          </span>
+        </div>
+      </div>
+      <!-- Duplicate track for seamless loop -->
+      <div class="skills-track" aria-hidden="true">
+        <div v-for="(skill, index) in skills" :key="`dup-${skill.name}-${index}`" class="skill-item group">
+          <div
+            class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
+            <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
+                 class="w-10 h-10"
+                 :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
+              <path :d="skill.svg_path" :fill="skill.preserve_color ? (skill.svg_fill || 'currentColor') : (skill.color || '#ff8c00')"></path>
+            </svg>
+            <img v-else-if="skill.icon && (skill.icon.includes('.png') || skill.icon.includes('.jpg') || skill.icon.includes('.gif') || skill.icon.includes('.svg'))" 
+                 :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
+            <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs" :style="{ color: skill.color || '#ff8c00' }">
+              {{ skill.name.charAt(0) }}
+            </div>
+          </div>
+          <span
+            class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            {{ skill.name }}
+          </span>
+        </div>
       </div>
     </div>
   </section>
@@ -87,10 +113,8 @@ onMounted(fetchData)
 .skills-container {
   --s: 90px;
   /* icon block width */
-  --d: 70s;
-  /* duration */
-  --n: 15;
-  /* visible items */
+  --gap: 32px;
+  /* gap between items */
 
   display: flex;
   overflow: hidden;
@@ -98,12 +122,18 @@ onMounted(fetchData)
   position: relative;
   padding-block: 1.5rem;
   background: transparent;
-  border-top: 1px solid transparent;
-  border-bottom: 1px solid transparent;
 }
 
-:global(.dark) .skills-container {
-  border-color: transparent;
+.skills-track {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  animation: marquee var(--d) linear infinite !important;
+  flex-shrink: 0;
+}
+
+.skills-container:hover .skills-track {
+  animation-play-state: paused;
 }
 
 .skill-item {
@@ -111,20 +141,15 @@ onMounted(fetchData)
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-
-  offset: shape(from calc(var(--s) / -2) 50%,
-      hline by calc(sibling-count() * max(100% / var(--n), var(--s) + 32px)));
-
-  animation: marquee-offset var(--d) linear infinite calc(-1 * sibling-index() * var(--d) / sibling-count());
+  flex-shrink: 0;
 }
 
-.skills-container:hover .skill-item {
-  animation-play-state: paused;
-}
-
-@keyframes marquee-offset {
-  to {
-    offset-distance: 100%;
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-1 * var(--s) - var(--gap)));
   }
 }
 </style>
