@@ -49,55 +49,29 @@ onMounted(fetchData)
       </div>
     </div>
 
-    <div v-else class="skills-container" :style="{ '--d': (settings?.skills_marquee_speed || 70) + 's' }">
-      <div class="skills-track">
-        <!-- Original skills -->
-        <div v-for="(skill, index) in skills" :key="`${skill.name}-${index}`" class="skill-item group" :title="skill.name">
-          <div
-            class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
-            <!-- Use SVG path if available -->
-            <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
-                 class="w-10 h-10"
-                 :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
-              <path :d="skill.svg_path" :fill="skill.preserve_color ? (skill.svg_fill || 'currentColor') : (skill.color || '#ff8c00')"></path>
-            </svg>
-            <!-- Fallback to icon image if available (PNG, JPG, GIF, or SVG file) -->
-            <img v-else-if="skill.icon && (skill.icon.includes('.png') || skill.icon.includes('.jpg') || skill.icon.includes('.gif') || skill.icon.includes('.svg'))" 
-                 :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
-            <!-- Empty state for FontAwesome-only skills -->
-            <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs" :style="{ color: skill.color || '#ff8c00' }">
-              {{ skill.name.charAt(0) }}
-            </div>
+    <div v-else class="skills-container" :style="{ '--d': (settings?.skills_marquee_speed || 70) + 's', '--n': skills.length || 1 }">
+      <div v-for="(skill, index) in skills" :key="`${skill.name}-${index}`" class="skill-item group" :title="skill.name" :style="{ '--i': index }">
+        <div
+          class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
+          <!-- Use SVG path if available -->
+          <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
+               class="w-10 h-10"
+               :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
+            <path :d="skill.svg_path" :fill="skill.preserve_color ? (skill.svg_fill || 'currentColor') : (skill.color || '#ff8c00')"></path>
+          </svg>
+          <!-- Fallback to icon image if available (PNG, JPG, GIF, or SVG file) -->
+          <img v-else-if="skill.icon && (skill.icon.includes('.png') || skill.icon.includes('.jpg') || skill.icon.includes('.gif') || skill.icon.includes('.svg'))" 
+               :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
+          <!-- Empty state for FontAwesome-only skills -->
+          <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs" :style="{ color: skill.color || '#ff8c00' }">
+            {{ skill.name.charAt(0) }}
           </div>
-
-          <span
-            class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            {{ skill.name }}
-          </span>
         </div>
-        <!-- Duplicated skills for seamless loop -->
-        <template v-if="skills.length > 0">
-          <div v-for="(skill, index) in skills" :key="`dup-${skill.name}-${index}`" class="skill-item group" aria-hidden="true">
-            <div
-              class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
-              <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'"
-                   class="w-10 h-10"
-                   :style="skill.preserve_color && skill.svg_fill ? {} : { fill: skill.color || '#ff8c00' }">
-                <path :d="skill.svg_path" :fill="skill.preserve_color ? (skill.svg_fill || 'currentColor') : (skill.color || '#ff8c00')"></path>
-              </svg>
-              <img v-else-if="skill.icon && (skill.icon.includes('.png') || skill.icon.includes('.jpg') || skill.icon.includes('.gif') || skill.icon.includes('.svg'))" 
-                   :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
-              <div v-else class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs" :style="{ color: skill.color || '#ff8c00' }">
-                {{ skill.name.charAt(0) }}
-              </div>
-            </div>
 
-            <span
-              class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              {{ skill.name }}
-            </span>
-          </div>
-        </template>
+        <span
+          class="mt-3 text-[12px] font-black text-black/60 dark:text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          {{ skill.name }}
+        </span>
       </div>
     </div>
   </section>
@@ -115,8 +89,10 @@ onMounted(fetchData)
 .skills-container {
   --s: 90px;
   /* icon block width */
-  --gap: 32px;
-  /* gap between items */
+  --d: 70s;
+  /* duration */
+  --n: 15;
+  /* number of items */
 
   display: flex;
   overflow: hidden;
@@ -132,25 +108,21 @@ onMounted(fetchData)
   border-color: transparent;
 }
 
-.skills-track {
-  display: flex;
-  align-items: center;
-  gap: var(--gap);
-  animation: marquee var(--d) linear infinite;
-  flex-shrink: 0;
-  width: max-content;
-}
-
-.skills-container:hover .skills-track {
-  animation-play-state: paused;
-}
-
 .skill-item {
   width: var(--s);
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
+
+  offset: shape(from calc(var(--s) / -2) 50%,
+      hline by calc(sibling-count() * max(100% / var(--n), var(--s) + 32px)));
+
+  animation: marquee-offset var(--d) linear infinite calc(-1 * sibling-index() * var(--d) / sibling-count());
+}
+
+.skills-container:hover .skill-item {
+  animation-play-state: paused;
 }
 
 /* Icon wrapper - force dark mode colors */
@@ -171,12 +143,9 @@ onMounted(fetchData)
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
+@keyframes marquee-offset {
+  to {
+    offset-distance: 100%;
   }
 }
 </style>
