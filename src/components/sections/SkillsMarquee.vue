@@ -1,25 +1,27 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getSkills } from '@/api/portfolio'
+import { getSkills, getSettings } from '@/api/portfolio'
 
 const { t } = useI18n({ useScope: 'global' })
 
 const skills = ref([])
+const settings = ref(null)
 const loading = ref(true)
 
-const fetchSkills = async () => {
+const fetchData = async () => {
   try {
     loading.value = true
     skills.value = await getSkills()
+    settings.value = await getSettings()
   } catch (err) {
-    console.error('Failed to fetch skills:', err)
+    console.error('Failed to fetch data:', err)
   } finally {
     loading.value = false
   }
 }
 
-onMounted(fetchSkills)
+onMounted(fetchData)
 </script>
 
 <template>
@@ -47,16 +49,16 @@ onMounted(fetchSkills)
       </div>
     </div>
 
-    <div v-else class="skills-container">
+    <div v-else class="skills-container" :style="{ '--d': settings?.skills_marquee_speed || 70 }">
       <div v-for="(skill, index) in skills" :key="`${skill.name}-${index}`" class="skill-item group" :title="skill.name"
         :style="{ color: skill.color }">
         <div
           class="w-20 h-20 bg-gray-50 dark:bg-[#24262b] rounded-full flex items-center justify-center text-4xl shadow-md transition-all duration-300 group-hover:scale-110">
           <!-- Use SVG path if available -->
           <svg v-if="skill.svg_path" :viewBox="skill.svg_viewbox || '0 0 24 24'" 
-               class="w-10 h-10" 
-               :style="{ fill: skill.color }">
-            <path :d="skill.svg_path"></path>
+               class="w-10 h-10"
+               :style="skill.preserve_color ? {} : { fill: skill.color }">
+            <path :d="skill.svg_path" :fill="skill.preserve_color ? undefined : skill.color"></path>
           </svg>
           <!-- Fallback to icon URL if path not available -->
           <img v-else-if="skill.icon" :src="skill.icon" :alt="skill.name" class="w-10 h-10 object-contain" />
